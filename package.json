@@ -1,0 +1,29 @@
+{
+  "name": "wa-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp Bot untuk Lazismu Tulungagung – notifikasi donasi, laporan harian, balas pesan user",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.5",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^2.7.0",
+    "pino": "^9.2.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "winston": "^3.13.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "overrides": {
+    "media-typer": "0.3.0"
+  }
+}

@@ -1,0 +1,7 @@
+2026-07-03 12:33:39 [INFO]: 
+🤖 WhatsApp Bot Service berjalan di port 3002
+2026-07-03 12:33:39 [INFO]:    Endpoint status : GET  /status
+2026-07-03 12:33:39 [INFO]:    Endpoint QR     : GET  /qr
+2026-07-03 12:33:39 [INFO]:    Endpoint pair   : POST /pair
+
+2026-07-03 12:33:39 [INFO]: ⏰ Scheduler aktif: Laporan (20:00 WIB) & Pengingat (10:00 WIB)
