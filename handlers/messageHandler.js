@@ -63,9 +63,72 @@ async function handleMessage(sock, msg) {
       return;
     }
 
+    // Perintah untuk cek ID Grup (Bisa dipakai di grup)
+    if (pesanLower === '!idgrup' || pesanLower === '!idgroup') {
+      const typeStr = isGroup ? 'Grup' : 'Pribadi';
+      await reply(sock, remoteJid, `🆔 *ID Chat ${typeStr}*\n\n\`${remoteJid}\`\n\n_Gunakan ID di atas untuk dimasukkan ke Pengaturan Admin._`);
+      return;
+    }
+
     // Info daftar program
     if (pesanLower === '#program' || pesanLower === 'program' || pesanLower === 'list program') {
       await handleDaftarProgram(sock, remoteJid);
+      return;
+    }
+
+    // ── KONTEN KALENDER & DOWNLOADER ──────────────────────────────────────
+
+    // !kontenup
+    if (pesanLower === '!kontenup') {
+      try {
+        const res = await axios.get(`${PHP_BASE_URL}/api/update_konten.php?secret=${BOT_SECRET}`);
+        if (res.data && res.data.success) {
+          await reply(sock, remoteJid, `✅ Terima kasih! Konten *${res.data.judul}* telah ditandai SELESAI.`);
+        } else {
+          await reply(sock, remoteJid, `ℹ️ ${res.data.message || 'Tidak ada konten yang pending.'}`);
+        }
+      } catch(e) {
+        await reply(sock, remoteJid, `❌ Gagal menghubungi server web.`);
+      }
+      return;
+    }
+
+    // !ig [URL]
+    const igMatch = pesan.match(/^!ig\s+(https?:\/\/(?:www\.)?instagram\.com\/\S+)/i);
+    if (igMatch) {
+      const url = igMatch[1];
+      await reply(sock, remoteJid, '⏳ Sedang memproses video Instagram...');
+      try {
+        const res = await axios.get(`https://api.ryzendesu.vip/api/downloader/igdl?url=${encodeURIComponent(url)}`);
+        if (res.data && res.data.data && res.data.data.length > 0) {
+          for (const item of res.data.data) {
+            await sock.sendMessage(remoteJid, { video: { url: item.url }, caption: '✅ Video Instagram Downloaded' });
+          }
+        } else {
+          await reply(sock, remoteJid, '❌ Gagal mengunduh video. Link mungkin private atau API error.');
+        }
+      } catch(e) {
+        await reply(sock, remoteJid, '❌ Terjadi kesalahan saat menghubungi API pengunduh.');
+      }
+      return;
+    }
+
+    // !yt [URL]
+    const ytMatch = pesan.match(/^!yt\s+(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/\S+)/i);
+    if (ytMatch) {
+      const url = ytMatch[1];
+      await reply(sock, remoteJid, '⏳ Sedang memproses video YouTube (Maksimal durasi pendek)...');
+      try {
+        // Menggunakan API ytmp4
+        const res = await axios.get(`https://api.ryzendesu.vip/api/downloader/ytmp4?url=${encodeURIComponent(url)}`);
+        if (res.data && res.data.url) {
+            await sock.sendMessage(remoteJid, { video: { url: res.data.url }, caption: `✅ Video YouTube Berhasil Diunduh` });
+        } else {
+          await reply(sock, remoteJid, '❌ Gagal mengunduh YouTube. File mungkin terlalu besar atau format tidak didukung.');
+        }
+      } catch(e) {
+        await reply(sock, remoteJid, '❌ Terjadi kesalahan saat menghubungi API pengunduh.');
+      }
       return;
     }
 
