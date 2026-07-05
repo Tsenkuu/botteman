@@ -69,9 +69,13 @@ async function handleMessage(sock, msg) {
       return;
     }
 
+    const isGroup = remoteJid.endsWith('@g.us');
+
     // Pesan sapaan / selamat datang
-    if (['halo', 'hai', 'hello', 'hi', 'assalamualaikum', 'assalamualaikum warahmatullahi wabarakatuh'].some(s => pesanLower.includes(s))) {
-      await handleSambutan(sock, remoteJid, senderNum);
+    if (['halo', 'hai', 'hello', 'hi', 'assalamualaikum', 'assalamualaikum warahmatullahi wabarakatuh'].some(s => pesanLower === s || pesanLower === s + ' bot')) {
+      if (!isGroup) {
+        await handleSambutan(sock, remoteJid, senderNum);
+      }
       return;
     }
 
@@ -82,7 +86,9 @@ async function handleMessage(sock, msg) {
     }
 
     // Kirim menu default jika tidak ada yang cocok
-    await handleDefaultReply(sock, remoteJid);
+    if (!isGroup) {
+      await handleDefaultReply(sock, remoteJid);
+    }
 
   } catch (err) {
     logger.error(`[handleMessage ERROR] ${err.message}`);
