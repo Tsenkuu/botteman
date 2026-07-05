@@ -78,17 +78,36 @@ async function handleMessage(sock, msg) {
 
     // ── KONTEN KALENDER & DOWNLOADER ──────────────────────────────────────
 
-    // !kontenup
-    if (pesanLower === '!kontenup') {
-      try {
-        const res = await axios.get(`${PHP_BASE_URL}/api/update_konten.php?secret=${BOT_SECRET}`);
-        if (res.data && res.data.success) {
-          await reply(sock, remoteJid, `✅ Terima kasih! Konten *${res.data.judul}* telah ditandai SELESAI.`);
-        } else {
-          await reply(sock, remoteJid, `ℹ️ ${res.data.message || 'Tidak ada konten yang pending.'}`);
+    // !konten, !video, !flyer, !tugas, !tugasall
+    const cmdList = ['!video', '!flyer', '!konten', '!tugas', '!tugasall', '!kontenup'];
+    const cmd = pesanLower.split(' ')[0];
+    
+    if (cmdList.includes(cmd)) {
+      if (cmd === '!kontenup') {
+        try {
+          const res = await axios.get(`${PHP_BASE_URL}/api/update_konten.php?secret=${BOT_SECRET}`);
+          if (res.data && res.data.success) {
+            await reply(sock, remoteJid, `✅ Terima kasih! Konten *${res.data.judul}* telah ditandai SELESAI.`);
+          } else {
+            await reply(sock, remoteJid, `ℹ️ ${res.data.message || 'Tidak ada konten yang pending.'}`);
+          }
+        } catch(e) {
+          await reply(sock, remoteJid, `❌ Gagal menghubungi server web.`);
         }
-      } catch(e) {
-        await reply(sock, remoteJid, `❌ Gagal menghubungi server web.`);
+      } else {
+        try {
+          const formData = new URLSearchParams();
+          formData.append('secret', BOT_SECRET);
+          formData.append('sender', senderNum);
+          formData.append('text', pesan);
+          
+          const res = await axios.post(`${PHP_BASE_URL}/api/bot_konten.php`, formData);
+          if (res.data && res.data.message) {
+            await reply(sock, remoteJid, res.data.message);
+          }
+        } catch(e) {
+          await reply(sock, remoteJid, `❌ Gagal menghubungi server web.`);
+        }
       }
       return;
     }
