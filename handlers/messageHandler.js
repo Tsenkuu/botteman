@@ -81,6 +81,11 @@ async function handleMessage(sock, msg) {
       await handleDaftarProgram(sock, remoteJid);
       return;
     }
+    
+    if (pesanLower === '!idgrup' || pesanLower === '!idgroup') {
+      await reply(sock, remoteJid, `🆔 *ID Chat ini:*\n${remoteJid}`);
+      return;
+    }
 
     // ── KONTEN KALENDER & DOWNLOADER ──────────────────────────────────────
 
