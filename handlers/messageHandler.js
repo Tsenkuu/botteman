@@ -162,7 +162,6 @@ async function handleMessage(sock, msg) {
       return;
     }
 
-    const isGroup = remoteJid.endsWith('@g.us');
 
     // Pesan sapaan / selamat datang
     if (['halo', 'hai', 'hello', 'hi', 'assalamualaikum', 'assalamualaikum warahmatullahi wabarakatuh'].some(s => pesanLower === s || pesanLower === s + ' bot')) {
