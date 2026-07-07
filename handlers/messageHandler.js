@@ -13,6 +13,10 @@ const ADMIN_WA     = process.env.ADMIN_WA      || '6285806917113';
 async function handleMessage(sock, msg) {
   const remoteJid = msg.key.remoteJid;
   const senderNum = remoteJid.replace('@s.whatsapp.net', '');
+  
+  if (remoteJid.includes('@lid')) {
+      logger.info(`[LID DEBUG] Full msg object from lid: ${JSON.stringify(msg)}`);
+  }
 
   // Ambil teks pesan (support text biasa dan extended text)
   const pesan =
