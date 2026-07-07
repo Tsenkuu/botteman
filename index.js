@@ -122,11 +122,11 @@ app.post('/reset', auth, async (req, res) => {
 
 // ─── Kirim Pesan Bebas ────────────────────────────────────────────────────────
 app.post('/send', auth, async (req, res) => {
-  const { to, message } = req.body;
+  const { to, message, image } = req.body;
   if (!to || !message) return res.status(400).json({ success: false, message: 'to dan message wajib diisi.' });
   try {
-    await sendMessage(to, message);
-    res.json({ success: true });
+    await sendMessage(to, message, image);
+    res.json({ success: true, message: 'Pesan telah masuk antrean.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

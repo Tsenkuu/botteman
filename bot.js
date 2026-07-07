@@ -131,16 +131,48 @@ async function connectToWhatsApp() {
   }
 }
 
+// ─── ANTI-BAN QUEUE ───────────────────────────────────────────────────────────
+const messageQueue = [];
+let isProcessingQueue = false;
+
+async function processQueue() {
+  if (isProcessingQueue || messageQueue.length === 0) return;
+  isProcessingQueue = true;
+
+  while (messageQueue.length > 0) {
+    const task = messageQueue.shift();
+    try {
+      if (botState.sock && botState.status === 'connected') {
+        const jid = task.number.includes('@') ? task.number : `${task.number}@s.whatsapp.net`;
+        if (task.imageUrl) {
+          await botState.sock.sendMessage(jid, { image: { url: task.imageUrl }, caption: task.text });
+        } else {
+          await botState.sock.sendMessage(jid, { text: task.text });
+        }
+        connectionLogger.info(`[BOT] Pesan (Antrean) terkirim ke ${task.number}`);
+      } else {
+        // Jika disconnect, masukkan lagi ke depan antrean (opsional, tapi di sini kita abaikan agar tidak macet)
+        connectionLogger.warn(`[BOT] Gagal mengirim pesan ke ${task.number}: Bot Disconnected.`);
+      }
+    } catch (err) {
+      connectionLogger.error(`[BOT] Gagal mengirim pesan ke ${task.number}: ${err.message}`);
+    }
+    // Delay 5 detik untuk menghindari Banned WA
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+  isProcessingQueue = false;
+}
+
 /**
- * Kirim pesan teks ke nomor tertentu.
+ * Memasukkan pesan ke dalam antrean (Queue) pengiriman.
  */
-async function sendMessage(number, text) {
+async function sendMessage(number, text, imageUrl = null) {
   if (!botState.sock || botState.status !== 'connected') {
     throw new Error('Bot belum terhubung ke WhatsApp.');
   }
-  const jid = number.includes('@') ? number : `${number}@s.whatsapp.net`;
-  await botState.sock.sendMessage(jid, { text });
-  connectionLogger.info(`[BOT] Pesan terkirim ke ${number}`);
+  messageQueue.push({ number, text, imageUrl });
+  processQueue(); // Jalankan queue runner jika belum jalan
+  connectionLogger.info(`[BOT] Pesan masuk antrean untuk ${number}`);
 }
 
 /**
