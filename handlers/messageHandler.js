@@ -11,8 +11,10 @@ const ADMIN_WA     = process.env.ADMIN_WA      || '6285806917113';
  * @param {object} msg   - Pesan masuk
  */
 async function handleMessage(sock, msg) {
-  const remoteJid = msg.key.remoteJid;
-  const senderNum = remoteJid.replace('@s.whatsapp.net', '');
+  const remoteJid = msg.key.remoteJid || '';
+  const isGroup = remoteJid.endsWith('@g.us');
+  const actualSenderJid = isGroup ? (msg.key.participant || remoteJid) : remoteJid;
+  const senderNum = actualSenderJid.replace('@s.whatsapp.net', '');
   
   if (remoteJid.includes('@lid')) {
       logger.info(`[LID DEBUG] Full msg object from lid: ${JSON.stringify(msg)}`);
